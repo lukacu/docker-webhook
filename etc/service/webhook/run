@@ -1,0 +1,10 @@
+#!/bin/bash
+
+APPHOME=/scripts
+APPSCRIPT=webhook.js
+
+export NODE_PATH="/usr/local/lib/node_modules/"
+
+pushd "${APPHOME}"
+exec sudo -E -u www-data /usr/bin/nodejs "$APPSCRIPT"
+
