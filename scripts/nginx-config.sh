@@ -2,8 +2,8 @@
 
 OUTFILE=$1
 
-if [ -z "${WEBHOOK_PATH}" ]; then
-WEBHOOK_PATH=webhook
+if [ -z "${GITHUB_WEBHOOK}" ]; then
+GITHUB_WEBHOOK=webhook
 fi
 
 if [ -z "${ROOT_PATH}" ]; then
@@ -17,7 +17,7 @@ echo """server {
     """ > $OUTFILE
 
 echo """
-        location /$WEBHOOK_PATH {
+        location /$GITHUB_WEBHOOK {
 		rewrite  ^ / break;
 		proxy_pass http://127.0.0.1:9001;
 	}""" >> $OUTFILE
