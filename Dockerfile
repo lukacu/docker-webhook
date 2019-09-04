@@ -1,16 +1,15 @@
-FROM tozd/nginx-cron
+FROM nginx:alpine
 
-RUN apt-get update \
- && apt-get -y install nodejs npm git \
- && apt-get autoremove -y \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/
+RUN  apk add --no-cache nodejs npm runit sudo bash
 
-RUN npm install github-webhook-handler -g && ln -s /usr/bin/nodejs /usr/bin/node
+RUN npm install github-webhook-handler -g
 
 COPY ./etc /etc
 COPY ./scripts /scripts
+COPY ./start_runit /sbin/start_runit
 
-RUN mkdir /srv/www && chown www-data /srv/www
+RUN mkdir /srv/www && chown nginx:nginx /srv/www
 
+EXPOSE 80
 
+CMD ["/sbin/start_runit"]
