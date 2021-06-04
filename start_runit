@@ -7,6 +7,14 @@ do
     echo "${K}=\"${VAL}\"" >> /etc/envvars
 done
 
+sv_stop() {
+    echo "*** Stopping services"
+    for s in $(ls -d /etc/service/*)
+    do
+        /sbin/sv stop $s
+    done
+}
+
 echo "Starting pre-service scripts in /etc/runit_init.d"
 for script in /etc/runit_init.d/*
 do
@@ -21,10 +29,17 @@ do
         fi
     fi
 done
-if [ $# -eq 0 ]; then
-    exec /sbin/runsvdir -P /etc/service
-fi
-/sbin/runsvdir -P /etc/service &
 
-[ "$1" == '--' ] && shift
-exec $@
+trap "sv_stop; exit" SIGTERM
+
+
+if [ $# -eq 0 ]; then
+	echo "Press Ctrl-C to shut down"
+	/sbin/runsvdir -P /etc/service &
+	wait
+else
+	/sbin/runsvdir -P /etc/service &
+	[ "$1" == '--' ] && shift
+	echo "Running $@"
+	exec $@
+fi

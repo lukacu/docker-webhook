@@ -12,4 +12,4 @@ RUN mkdir /srv/www && chown nginx:nginx /srv/www
 
 EXPOSE 80
 
-CMD ["/sbin/start_runit"]
+ENTRYPOINT ["/sbin/start_runit"]
