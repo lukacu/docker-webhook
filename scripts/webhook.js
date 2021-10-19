@@ -1,28 +1,44 @@
 var execFile = require('child_process').execFile;
-var repository = process.env.GITHUB_USERNAME + "/" + process.env.GITHUB_REPOSITORY;
 var fs = require('fs');
+var http = require('http');
 
-var http = require('http')
-var createHandler = require('github-webhook-handler')
+var webhookFactory = require('github-webhook-handler');
 
-var handler = createHandler({ path: '/', secret: process.env.GITHUB_SECRET });
+var handler = null;
+
+if (process.env.GITHUB_SECRET !== undefined) {
+    handler = webhookFactory({ path: '/', secret: process.env.GITHUB_SECRET });
+    handler.on('ping', function (event) {
+         run_update()
+    }).on('push', function (event) {
+        if( event.payload.branch === process.env.GITHUB_BRANCH ) { run_update(); }
+    });
+} else {
+    console.log("WARNING: no GITHUB_SECRET given, running in dev mode, any call to webhook url will trigger update script");
+}
 
 http.createServer(function (req, res) {
-  handler(req, res, function (err) {
-    res.statusCode = 404
-    res.end('no such location')
-  })
-}).listen(9001)
+    if (handler) {
+        handler(req, res, function (err) {
+            res.statusCode = 404;
+            res.end('Not found');
+        });
+    } else {
+        runUpdate();
+        res.statusCode = 200;
+        res.end('OK');
+    }
+}).listen(9001);
 
-function run_update() {
+function runUpdate() {
 	if (fs.existsSync('/scripts/update.sh')) {
-		execFile('/scripts/update.sh', function(error, stdout, stderr) { console.log(error); });
+		execFile('/scripts/update.sh', function(error, stdout, stderr) { 
+		    if (error) {
+		        console.log(error); 
+		        console.log(stdout);
+		    } 
+		});
 	}
 }
 
-handler.on('ping', function (event) {
-     run_update()
-}).on('push', function (event) {
-    if( event.payload.branch === process.env.GITHUB_BRANCH ) { run_update(); }
-});
 
