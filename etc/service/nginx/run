@@ -22,8 +22,12 @@ echo """server {
     listen 80 default_server backlog=2048;
     root ${ROOT_PATH};
     index index.html;
-    error_page 404 404.html;
+    error_page 404 /etc/nginx/templates/404.html;
     """ > $OUTFILE
+
+if [ ! -z "${NOT_FOUND_PAGE}" ]; then
+echo "error_page 404 ${NOT_FOUND_PAGE};" >> $OUTFILE
+fi
 
 echo """
         location /$GITHUB_WEBHOOK {
