@@ -1,5 +1,7 @@
 #! /bin/sh
 
+RUNIT_DIR=/usr/sbin
+
 #env  | sed -e 's/=/="/' | sed -e 's/$/"/' > /etc/envvars
 for K in $(env | cut -d= -f1)
 do
@@ -11,7 +13,7 @@ sv_stop() {
     echo "*** Stopping services"
     for s in $(ls -d /etc/service/*)
     do
-        /sbin/sv stop $s
+        $RUNIT_DIR/sv stop $s
     done
 }
 
@@ -35,10 +37,10 @@ trap "sv_stop; exit" SIGTERM
 
 if [ $# -eq 0 ]; then
 	echo "Press Ctrl-C to shut down"
-	/sbin/runsvdir -P /etc/service &
+	$RUNIT_DIR/runsvdir -P /etc/service &
 	wait
 else
-	/sbin/runsvdir -P /etc/service &
+	$RUNIT_DIR/runsvdir -P /etc/service &
 	[ "$1" == '--' ] && shift
 	echo "Running $@"
 	exec $@
