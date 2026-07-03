@@ -2,7 +2,7 @@ FROM nginx:alpine
 
 RUN  apk add --no-cache nodejs npm runit sudo bash
 
-RUN npm install github-webhook-handler -g
+RUN mkdir /scripts && cd /scripts && npm install @octokit/webhooks
 
 COPY ./etc /etc
 COPY ./scripts /scripts

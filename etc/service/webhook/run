@@ -6,11 +6,11 @@ APPHOME=/scripts
 APPSCRIPT=webhook.js
 
 if [ ! -z /scripts/init.sh ] && [ -x /scripts/init.sh ]; then
-	sudo -E -u nginx /scripts/init.sh >> /dev/null
+	sudo -E -u nginx /scripts/init.sh >> /proc/1/fd/1 2>&1
 fi
 
 export NODE_PATH=`npm root -g`
 
 pushd "${APPHOME}"
-exec sudo -E -u nginx /usr/bin/node "$APPSCRIPT"
+exec sudo -E -u nginx /usr/bin/node "$APPSCRIPT" >> /proc/1/fd/1 2>&1
 
